@@ -1,0 +1,37 @@
+# ── Web framework ────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+websockets==14.1
+python-multipart==0.0.12        # FastAPI form/file support
+
+# ── VAD ──────────────────────────────────────────────────────
+# torch and torchaudio MUST be the same version — always update both together.
+# CPU-only build (~800MB lighter). GPU: remove +cpu suffix and the --extra-index-url line.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+torch==2.5.1+cpu
+torchaudio==2.5.1+cpu
+
+
+# If silero-vad causes import errors with your torch version, either:
+#   (a) remove the pin and let pip resolve: silero-vad
+#   (b) switch to the lighter fallback:     webrtcvad==2.0.10
+silero-vad==5.1.2
+
+# ── STT / TTS (Sarvam) ───────────────────────────────────────
+httpx==0.28.1                   # async HTTP client for Sarvam API calls
+
+# ── LLM (Groq) ───────────────────────────────────────────────
+groq==0.13.0
+
+# ── MCP ──────────────────────────────────────────────────────
+fastmcp==2.3.4
+
+# ── Utilities ────────────────────────────────────────────────
+python-dotenv==1.1.0
+# Pinned to 1.x — numpy 2.x breaks several ML/audio libs that haven't caught up yet.
+numpy==1.26.4
+
+# ── MS SQL (Phase 6 — uncomment when needed) ─────────────────
+# pyodbc==5.2.0
+# aioodbc==0.5.0
