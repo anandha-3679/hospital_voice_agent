@@ -130,6 +130,7 @@ def generate(text: str, language_code: str, history: list[dict]) -> str:
 
         # ── Step 2: no tools → final reply ──────────────────────────────────
         if not tool_calls:
+            content = _clean_response(content)
             print(f"💬 Aarogya: {content}")
             return content
 
@@ -150,6 +151,19 @@ def generate(text: str, language_code: str, history: list[dict]) -> str:
             })
 
     return "I'm sorry, I could not complete that request. Please try again."
+
+
+# ── Response sanitizer ───────────────────────────────────────────────────────
+
+_RAW_FUNC_RE = re.compile(r'<function=\w+>.*?</function>', re.DOTALL)
+_JSON_BLOCK_RE = re.compile(r'\{[\s\S]*?"(?:doctor_query|patient_id|date|ward_query)"[\s\S]*?\}')
+
+
+def _clean_response(text: str) -> str:
+    """Strip raw function-call artifacts the LLM may leak into reply text."""
+    text = _RAW_FUNC_RE.sub('', text)
+    text = _JSON_BLOCK_RE.sub('', text)
+    return text.strip()
 
 
 # ── Sentence splitter ─────────────────────────────────────────────────────────
@@ -223,8 +237,10 @@ def generate_stream(
             stream=True,
         )
         for sentence in _stream_to_sentences(stream):
-            print(f"💬 [chunk] {sentence}")
-            yield sentence
+            sentence = _clean_response(sentence)
+            if sentence:
+                print(f"💬 [chunk] {sentence}")
+                yield sentence
         return
 
     # ── Tools: resolve non-streaming, yield final reply directly ─────────────
@@ -253,6 +269,7 @@ def generate_stream(
 
         if not tool_calls:
             # Tools resolved — yield the final reply via sentence splitter
+            content = _clean_response(content)
             print(f"💬 Aarogya (post-tools): {content}")
             buf = content
             sentence, buf = _pop_sentence(buf)
