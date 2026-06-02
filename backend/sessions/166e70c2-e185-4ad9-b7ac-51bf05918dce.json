@@ -1,0 +1,122 @@
+{
+  "id": "166e70c2-e185-4ad9-b7ac-51bf05918dce",
+  "patient_name": "Guest",
+  "language_code": "en-IN",
+  "started_at": "2026-06-01T20:56:22.454820",
+  "last_active": "2026-06-02T09:37:48.542999",
+  "turns": 14,
+  "history": [
+    {
+      "role": "user",
+      "content": "Is it audible?"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm here and ready to help. How can I assist you today at City Care Hospital?"
+    },
+    {
+      "role": "user",
+      "content": "Hello, am I audible?"
+    },
+    {
+      "role": "assistant",
+      "content": "Yes, I can hear you clearly. How can I help you today at City Care Hospital? Do you need to book an appointment or have a question about our services?"
+    },
+    {
+      "role": "user",
+      "content": "Hello, am I audible?"
+    },
+    {
+      "role": "assistant",
+      "content": "You're coming through loud and clear. What brings you to City Care Hospital today? Do you have a question or need assistance with something?"
+    },
+    {
+      "role": "user",
+      "content": "Am I audible?"
+    },
+    {
+      "role": "assistant",
+      "content": "Yes, you're audible. What can I help you with at City Care Hospital?"
+    },
+    {
+      "role": "user",
+      "content": "Yeah, so I want to book an appointment. Can you tell me who are all the doctors present in the cardiology department?"
+    },
+    {
+      "role": "assistant",
+      "content": "We have Dr. Anitha Krishnan in the Cardiology department. She has 15 years of experience and her consultation fee is ₹800. Would you like to book an appointment with her?"
+    },
+    {
+      "role": "user",
+      "content": "Hello"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello! How can I assist you today at City Care Hospital?"
+    },
+    {
+      "role": "user",
+      "content": "Uh, yeah, so I want to book an appointment."
+    },
+    {
+      "role": "assistant",
+      "content": "Let me help you with that. Can you please tell me which department you'd like to book an appointment in?"
+    },
+    {
+      "role": "user",
+      "content": "Cardiology Department"
+    },
+    {
+      "role": "assistant",
+      "content": "The Cardiology department is a great choice. I'd like to check the availability of our doctors. Can you please tell me the preferred date and time for your appointment?"
+    },
+    {
+      "role": "user",
+      "content": "I want to come on tomorrow, the Wednesday, in the morning 9:30 PM. Is there any doctor available?"
+    },
+    {
+      "role": "assistant",
+      "content": "I've checked the availability of our doctors in the Cardiology department for tomorrow morning. Dr. Anitha Krishnan is available at 9:30 AM. Would you like to book an appointment with her?"
+    },
+    {
+      "role": "user",
+      "content": "ஓகே ஓகே நாளைக்கு நான் வந்துடுறேன் தமிழ்ல பேசுவீங்களா இல்ல தமிழ்ல பேசுவீங்களா"
+    },
+    {
+      "role": "assistant",
+      "content": "ஆமாம், நான் தமிழில் பேச முடியும். நீங்கள் நாளை வந்து சேருவதற்கு முன், நீங்கள் எந்த நேரத்தில் வருவது என்பதை உறுதி செய்வோம். நீங்கள் இப்போது நாளை காலை 9:30 க்கு வருவதாக கூறினீர்கள். அப்போது நாங்கள் உங்களுக்கு நோயாளிக்கு அனுமதி வழங்குவோம்."
+    },
+    {
+      "role": "user",
+      "content": "Hey, I am back."
+    },
+    {
+      "role": "assistant",
+      "content": "Welcome back! I see you were here earlier to book an appointment. Did you have a chance to confirm your appointment with Dr. Anitha Krishnan in the Cardiology department?"
+    },
+    {
+      "role": "user",
+      "content": "இல்ல இல்ல சான்ஸ் கிடைக்கல. சோ அதான் இப்ப உங்களால புக் பண்ண முடியுமா? அதான் டைமிங் என்னன்னு கொஞ்சம் கன்ஃபார்ம் பண்றதுக்காக."
+    },
+    {
+      "role": "assistant",
+      "content": "நான் உங்களுக்கு அனுமதி பதிவு செய்வேன். நீங்கள் நாளை காலை 9:30 க்கு வருவதாக கூறினீர்கள். நான் உங்களுக்கு அனுமதி பதிவு செய்து வைத்துவிடுகிறேன். நீங்கள் எப்போது வருவது என்பதை உறுதி செய்வோம்."
+    },
+    {
+      "role": "user",
+      "content": "அதே டைம் தான் அப்பவே புக் பண்ணிடுங்க."
+    },
+    {
+      "role": "assistant",
+      "content": "நாளை காலை 9:30 க்கு உங்களுக்கு அனுமதி பதிவு செய்யப்பட்டுள்ளது."
+    },
+    {
+      "role": "user",
+      "content": "அதே டைம் தான்"
+    },
+    {
+      "role": "assistant",
+      "content": "நாளை காலை 9:30 க்கு நீங்கள் வருவதாக உங்கள் அனுமதி பதிவு செய்யப்பட்டுள்ளது. நீங்கள் வரும் வரை, நாங்கள் உங்களுக்கு தேவையான அனைத்தையும் தயார் செய்து வைத்திருப்போம்."
+    }
+  ]
+}
