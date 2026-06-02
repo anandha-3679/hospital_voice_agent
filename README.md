@@ -152,7 +152,20 @@ voice_agent/
 
 ---
 
-## 9. How to Run
+## 9. Deployment
+
+| Layer    | Platform | URL |
+|----------|----------|-----|
+| Frontend | Vercel   | https://hospital-voice-agent-4ssy.vercel.app/ |
+| Backend  | Render   | https://hospital-voice-agent-8zug.onrender.com |
+
+**Key backend endpoints (production):**
+- `POST /sessions` — create a new session
+- `WebSocket /ws/{session_id}` — real-time voice pipeline connection 
+
+
+
+## 10. How to Run
 
 **Backend**
 ```bash
