@@ -17,7 +17,7 @@ export default function VoiceChat() {
 
   // ── Session ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetch('http://localhost:8000/sessions', {
+    fetch('https://hospital-voice-agent-8zug.onrender.com/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ patient_name: 'Guest' }),
@@ -28,8 +28,9 @@ export default function VoiceChat() {
   }, [])
 
   // ── WebSocket ────────────────────────────────────────────────────────────
-  const { status, lastMessage, connect, disconnect, send, sendBinary } = useWebSocket(sessionId)
+  const { status, lastMessage, connect, disconnect, send, sendBinary, audioCallbackRef } = useWebSocket(sessionId)
   const { enqueue: enqueueAudio, stop: stopAudio, speaking } = useAudioPlayer()
+  audioCallbackRef.current = enqueueAudio
   const speakingRef = useRef(speaking)
   speakingRef.current = speaking
 
@@ -52,10 +53,9 @@ export default function VoiceChat() {
         return [...prev, { id: Date.now(), role: 'assistant', text }]
       })
     }
-    if (type === 'tts_chunk')  enqueueAudio(lastMessage.data)
     if (type === 'cancelled')  stopAudio()
     if (type === 'error')      setErrorBanner(lastMessage.message)
-  }, [lastMessage, enqueueAudio, stopAudio])
+  }, [lastMessage, stopAudio])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })

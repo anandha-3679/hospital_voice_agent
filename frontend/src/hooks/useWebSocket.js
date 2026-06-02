@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-const WS_BASE = 'ws://localhost:8000/ws'
+const WS_BASE = 'wss://hospital-voice-agent-8zug.onrender.com/ws'
 
 export function useWebSocket(sessionId) {
   const [status, setStatus] = useState('disconnected') // disconnected | connecting | connected | error
   const [lastMessage, setLastMessage] = useState(null)
   const wsRef = useRef(null)
   const pingRef = useRef(null)
+  const audioCallbackRef = useRef(null)
 
   const disconnect = useCallback(() => {
     clearInterval(pingRef.current)
@@ -37,7 +38,12 @@ export function useWebSocket(sessionId) {
 
     ws.onmessage = (e) => {
       try {
-        setLastMessage(JSON.parse(e.data))
+        const msg = JSON.parse(e.data)
+        if (msg.type === 'tts_chunk' && audioCallbackRef.current) {
+          audioCallbackRef.current(msg.data)
+        } else {
+          setLastMessage(msg)
+        }
       } catch {
         setLastMessage({ type: 'raw', data: e.data })
       }
@@ -70,5 +76,5 @@ export function useWebSocket(sessionId) {
 
   useEffect(() => () => disconnect(), [disconnect])
 
-  return { status, lastMessage, connect, disconnect, send, sendBinary }
+  return { status, lastMessage, connect, disconnect, send, sendBinary, audioCallbackRef }
 }

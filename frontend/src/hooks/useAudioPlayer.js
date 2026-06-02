@@ -34,8 +34,10 @@ export function useAudioPlayer() {
 
     // base64 → Uint8Array → Int16Array → Float32Array
     const binary  = atob(base64)
-    const bytes   = new Uint8Array(binary.length)
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+    const rawLen  = binary.length
+    const padded  = rawLen % 2 === 0 ? rawLen : rawLen + 1
+    const bytes   = new Uint8Array(padded)
+    for (let i = 0; i < rawLen; i++) bytes[i] = binary.charCodeAt(i)
 
     const int16   = new Int16Array(bytes.buffer)
     const float32 = new Float32Array(int16.length)
