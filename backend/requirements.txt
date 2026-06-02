@@ -1,0 +1,9 @@
+sarvamai
+requests
+sounddevice
+numpy
+groq
+python-dotenv
+fastapi
+uvicorn[standard]
+python-multipart
