@@ -10,6 +10,9 @@ load_dotenv()
 
 _client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+_FAST_MODEL = "llama-3.1-8b-instant"   # no-tool replies
+_TOOL_MODEL  = "llama-3.3-70b-versatile"  # tool-calling iterations
+
 # ── System prompt ─────────────────────────────────────────────────────────────
 
 _BASE_PROMPT = f"""You are Aarogya, a friendly and professional hospital voice assistant for City Care Hospital.
@@ -101,7 +104,7 @@ def generate(text: str, language_code: str, history: list[dict]) -> str:
     for iteration in range(MAX_TOOL_ITERATIONS):
         print(f"🤖 Groq call (iteration {iteration + 1}, tools={'on' if use_tools else 'off'})...")
         response = _client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model=_FAST_MODEL if not use_tools else _TOOL_MODEL,
             messages=messages,                          # type: ignore[arg-type]
             tools=active_tools,                         # type: ignore[arg-type]
             tool_choice="auto" if use_tools else "none",
@@ -211,7 +214,7 @@ def generate_stream(
     if not use_tools:
         print("🤖 Groq streaming (no tools)...")
         stream = _client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model=_FAST_MODEL,
             messages=messages,          # type: ignore[arg-type]
             tools=None,
             tool_choice="none",
@@ -228,7 +231,7 @@ def generate_stream(
     for iteration in range(MAX_TOOL_ITERATIONS):
         print(f"🤖 Groq call (iteration {iteration + 1}, tools=on)...")
         response = _client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model=_TOOL_MODEL,
             messages=messages,          # type: ignore[arg-type]
             tools=active_tools,         # type: ignore[arg-type]
             tool_choice="auto",
