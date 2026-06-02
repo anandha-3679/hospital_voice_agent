@@ -10,8 +10,7 @@ load_dotenv()
 
 _client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-_FAST_MODEL = "llama-3.1-8b-instant"   # no-tool replies
-_TOOL_MODEL  = "llama-3.3-70b-versatile"  # tool-calling iterations
+_MODEL = "llama-3.3-70b-versatile"
 
 # ── System prompt ─────────────────────────────────────────────────────────────
 
@@ -36,8 +35,8 @@ Tone: Warm, calm, and reassuring. Keep responses concise and conversational — 
 TOOL USE RULES — critical:
 - ONLY call a tool when the user explicitly mentions a patient, doctor, appointment, ward, or related hospital data need.
 - For greetings, general questions, or medical knowledge — answer directly WITHOUT calling any tool.
-- ALWAYS use the native tool-calling API. NEVER output tool calls as raw text, JSON, or any <function=...> format.
-- If you call a tool in raw text format, the system will crash. Use only the structured tool interface.
+- You MUST use the structured native tool-calling interface provided by the API. This means returning a proper tool_call object — NOT text, NOT JSON, NOT XML, NOT any <function=...> or {{\"name\": ...}} format written in your reply.
+- Writing a tool call as plain text in your response is forbidden and will break the system. Only invoke tools through the API's built-in tool_calls mechanism.
 
 Hospital details:
 - Name: City Care Hospital
@@ -58,15 +57,15 @@ _TOOL_KEYWORDS = {
     "revisit", "follow-up", "followup", "schedule", "available", "availability",
     "admit", "admitted", "discharge", "discharged", "record", "records",
     "report", "reports", "history", "bill", "billing",
+    # Department names
+    "cardiology", "cardiologist", "orthopedic", "pediatric", "neurology",
+    "gynecology", "dermatology", "general medicine", "ent", "ophthalmology", "dentistry",
     # Hindi transliterations
-    "appointment", "doctor", "patient", "apoinment",
-    # Telugu / Hindi common words (romanised)
-    "daktar", "aspatri", "vyakti",
+    "apoinment", "daktar", "aspatri", "vyakti",
 }
 
 
 def _needs_tools(text: str) -> bool:
-    """Return True if the user message contains any tool-triggering keyword."""
     lower = text.lower()
     return any(kw in lower for kw in _TOOL_KEYWORDS)
 
@@ -76,7 +75,6 @@ _LANG_ADDENDUM = {
     "ta-IN": "பயனர் தமிழில் பேசுகிறார். தமிழிலேயே பதிலளிக்கவும்.",
     "te-IN": "వినియోగదారు తెలుగులో మాట్లాడుతున్నారు. తెలుగులోనే సమాధానం ఇవ్వండి.",
     "en-IN": "The user is speaking in English. Reply in English.",
-
 }
 
 
@@ -104,7 +102,7 @@ def generate(text: str, language_code: str, history: list[dict]) -> str:
     for iteration in range(MAX_TOOL_ITERATIONS):
         print(f"🤖 Groq call (iteration {iteration + 1}, tools={'on' if use_tools else 'off'})...")
         response = _client.chat.completions.create(
-            model=_FAST_MODEL if not use_tools else _TOOL_MODEL,
+            model=_MODEL,
             messages=messages,                          # type: ignore[arg-type]
             tools=active_tools,                         # type: ignore[arg-type]
             tool_choice="auto" if use_tools else "none",
@@ -115,7 +113,6 @@ def generate(text: str, language_code: str, history: list[dict]) -> str:
         msg = response.choices[0].message
         content = msg.content or ""
 
-        # ── Step 1: collect structured tool calls ────────────────────────────
         tool_calls: list[dict] = [
             {
                 "id": tc.id,
@@ -128,20 +125,16 @@ def generate(text: str, language_code: str, history: list[dict]) -> str:
             for tc in (msg.tool_calls or [])
         ]
 
-        # ── Step 2: no tools → final reply ──────────────────────────────────
         if not tool_calls:
-            content = _clean_response(content)
             print(f"💬 Aarogya: {content}")
             return content
 
-        # ── Step 3: append assistant turn ────────────────────────────────────
         messages.append({
             "role": "assistant",
             "content": content,
             "tool_calls": tool_calls,
         })
 
-        # ── Step 4: execute each tool and append results ─────────────────────
         for tc in tool_calls:
             result = execute_tool(tc["function"]["name"], tc["function"]["arguments"])
             messages.append({
@@ -151,19 +144,6 @@ def generate(text: str, language_code: str, history: list[dict]) -> str:
             })
 
     return "I'm sorry, I could not complete that request. Please try again."
-
-
-# ── Response sanitizer ───────────────────────────────────────────────────────
-
-_RAW_FUNC_RE = re.compile(r'<function=\w+>.*?</function>', re.DOTALL)
-_JSON_BLOCK_RE = re.compile(r'\{[\s\S]*?"(?:doctor_query|patient_id|date|ward_query)"[\s\S]*?\}')
-
-
-def _clean_response(text: str) -> str:
-    """Strip raw function-call artifacts the LLM may leak into reply text."""
-    text = _RAW_FUNC_RE.sub('', text)
-    text = _JSON_BLOCK_RE.sub('', text)
-    return text.strip()
 
 
 # ── Sentence splitter ─────────────────────────────────────────────────────────
@@ -206,8 +186,7 @@ def generate_stream(
 
     - No tools needed  → single streaming Groq call, sentences yielded live.
     - Tools needed     → non-streaming tool iterations until resolved, then
-                         the final reply content is split and yielded directly
-                         (no extra API call).
+                         the final reply content is split and yielded directly.
     """
     lang_note = _LANG_ADDENDUM.get(
         language_code,
@@ -228,7 +207,7 @@ def generate_stream(
     if not use_tools:
         print("🤖 Groq streaming (no tools)...")
         stream = _client.chat.completions.create(
-            model=_FAST_MODEL,
+            model=_MODEL,
             messages=messages,          # type: ignore[arg-type]
             tools=None,
             tool_choice="none",
@@ -237,17 +216,15 @@ def generate_stream(
             stream=True,
         )
         for sentence in _stream_to_sentences(stream):
-            sentence = _clean_response(sentence)
-            if sentence:
-                print(f"💬 [chunk] {sentence}")
-                yield sentence
+            print(f"💬 [chunk] {sentence}")
+            yield sentence
         return
 
     # ── Tools: resolve non-streaming, yield final reply directly ─────────────
     for iteration in range(MAX_TOOL_ITERATIONS):
         print(f"🤖 Groq call (iteration {iteration + 1}, tools=on)...")
         response = _client.chat.completions.create(
-            model=_TOOL_MODEL,
+            model=_MODEL,
             messages=messages,          # type: ignore[arg-type]
             tools=active_tools,         # type: ignore[arg-type]
             tool_choice="auto",
@@ -268,8 +245,6 @@ def generate_stream(
         ]
 
         if not tool_calls:
-            # Tools resolved — yield the final reply via sentence splitter
-            content = _clean_response(content)
             print(f"💬 Aarogya (post-tools): {content}")
             buf = content
             sentence, buf = _pop_sentence(buf)
